@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -211,6 +212,32 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:3rem
 /* DIVIDER LINE */
 .section-divider{border:none;border-top:1px solid var(--border);margin:0}
 
+/* CATÁLOGO DINÁMICO */
+.catalogo-section{padding:4rem 5%;background:var(--bg)}
+.catalogo-inner{max-width:1200px;margin:0 auto}
+.catalogo-tabs{display:flex;gap:.5rem;margin-bottom:2rem}
+.cat-tab{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.6rem 1.5rem;border-radius:8px;font-family:var(--font-body);font-size:.9rem;cursor:pointer;transition:all .2s;font-weight:500}
+.cat-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.cat-tab:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.catalogo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+.cat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .25s;cursor:pointer}
+.cat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(14,127,212,.12);border-color:var(--accent)}
+.cat-card-img{width:100%;height:180px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.cat-card-img img{width:100%;height:180px;object-fit:cover}
+.cat-card-img-placeholder{width:100%;height:180px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.5rem}
+.cat-card-body{padding:1.25rem}
+.cat-card-type{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.4rem}
+.type-software{color:var(--accent)}
+.type-hardware{color:var(--accent2)}
+.cat-card-name{font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+.cat-card-desc{font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:.75rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat-card-price{font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--accent)}
+.cat-card-specs{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem}
+.spec-tag{background:var(--surface2);border:1px solid var(--border);font-size:.68rem;padding:.2rem .5rem;border-radius:4px;color:var(--muted)}
+.cat-loading{text-align:center;padding:3rem;color:var(--muted);grid-column:1/-1}
+.cat-empty{text-align:center;padding:3rem;color:var(--muted);grid-column:1/-1}
+.cat-empty i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:.75rem}
+
 /* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .6s ease both}
@@ -363,41 +390,15 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:3rem
   <div class="section-tag">Nuestros Productos</div>
   <h2 class="section-title">Software <span style="color:var(--accent)">+</span> Hardware</h2>
   <p class="section-sub">SIE integra lo mejor de dos mundos: sistemas inteligentes desarrollados localmente y equipo de cómputo seleccionado para funcionar de forma óptima con nuestro software.</p>
-  <div class="products-grid">
-    <!-- SOFTWARE -->
-    <div class="product-card featured">
-      <div class="product-badge badge-soft">Software</div>
-      <div class="product-icon icon-soft"><i class="fas fa-laptop-code" style="color:var(--accent)"></i></div>
-      <div class="product-title">SIE Sistemas</div>
-      <div class="product-by">Por <span>Cubano Dev</span> · Tepic, Nayarit</div>
-      <p class="product-desc">Sistema de punto de venta y gestión comercial desarrollado en Node.js. Funciona 100% en red local — sin depender de internet. Rápido, estable y personalizable para tu giro.</p>
-      <ul class="feature-list">
-        <li><i class="fas fa-check-circle"></i> Punto de venta táctil o con lector</li>
-        <li><i class="fas fa-check-circle"></i> Inventario en tiempo real</li>
-        <li><i class="fas fa-check-circle"></i> Reportes y dashboards visuales</li>
-        <li><i class="fas fa-check-circle"></i> Gestión de empleados y permisos</li>
-        <li><i class="fas fa-check-circle"></i> Multi-sucursal en la misma red</li>
-        <li><i class="fas fa-check-circle"></i> Impresión de tickets térmica</li>
-        <li><i class="fas fa-check-circle"></i> Respaldo automático de datos</li>
-      </ul>
-    </div>
-    <!-- HARDWARE -->
-    <div class="product-card hardware">
-      <div class="product-badge badge-hard">Hardware</div>
-      <div class="product-icon icon-hard"><i class="fas fa-desktop" style="color:var(--accent2)"></i></div>
-      <div class="product-title">SIE Equipo</div>
-      <div class="product-by">Por <span style="color:var(--accent2)">Socio SIE</span> · Distribución y Soporte</div>
-      <p class="product-desc">Paquetes de equipo seleccionados para funcionar perfectamente con el software SIE. Instalación, configuración y garantía incluidos. Un solo proveedor para todo.</p>
-      <ul class="feature-list">
-        <li><i class="fas fa-check-circle"></i> Computadoras y All-in-One POS</li>
-        <li><i class="fas fa-check-circle"></i> Impresoras de tickets térmicas</li>
-        <li><i class="fas fa-check-circle"></i> Lectores de código de barras</li>
-        <li><i class="fas fa-check-circle"></i> Cajones de dinero</li>
-        <li><i class="fas fa-check-circle"></i> Routers y configuración de red LAN</li>
-        <li><i class="fas fa-check-circle"></i> Pantallas para clientes</li>
-        <li><i class="fas fa-check-circle"></i> Mantenimiento preventivo</li>
-      </ul>
-    </div>
+  <!-- Tabs -->
+  <div class="catalogo-tabs">
+    <button class="cat-tab active" onclick="filtrarCatalogo('todos',this)">🗂️ Todos</button>
+    <button class="cat-tab" onclick="filtrarCatalogo('software',this)">💻 Software</button>
+    <button class="cat-tab" onclick="filtrarCatalogo('hardware',this)">🖥️ Hardware</button>
+  </div>
+  <!-- Grid dinámico -->
+  <div class="catalogo-grid" id="catalogo-grid">
+    <div class="cat-loading"><i class="fas fa-circle-notch fa-spin" style="font-size:2rem;margin-bottom:.75rem;display:block"></i>Cargando catálogo...</div>
   </div>
 </div>
 </div>
@@ -672,6 +673,58 @@ function selectGiro(g){
 }
 
 loadDemo('abarrotes', document.querySelector('.demo-tab.active'));
+</script>
+
+<script>
+// ── SUPABASE CATÁLOGO ──────────────────────────────
+const SB_URL = 'https://buentywjbnlbmplmwprx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1ZW50eXdqYm5sYm1wbG13cHJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNjI1NzQsImV4cCI6MjA5NTkzODU3NH0.aZdLwzlyLyhZPIPAlUqzK2swtez_95NhL4sq2I9zp3M';
+const { createClient } = supabase;
+const sbPublic = createClient(SB_URL, SB_KEY);
+
+let todosProductos = [];
+
+async function cargarCatalogo(){
+  const {data, error} = await sbPublic.from('productos').select('*').eq('activo', true).order('tipo').order('created_at', {ascending:false});
+  if(error){ console.error(error); return; }
+  todosProductos = data || [];
+  renderCatalogo(todosProductos);
+}
+
+function filtrarCatalogo(tipo, btn){
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const lista = tipo === 'todos' ? todosProductos : todosProductos.filter(p=>p.tipo===tipo);
+  renderCatalogo(lista);
+}
+
+function renderCatalogo(lista){
+  const grid = document.getElementById('catalogo-grid');
+  if(!lista || lista.length === 0){
+    grid.innerHTML = '<div class="cat-empty"><i class="fas fa-box-open"></i><p>Próximamente agregaremos productos aquí.</p></div>';
+    return;
+  }
+  grid.innerHTML = lista.map(p => {
+    const specs = Array.isArray(p.specs) ? p.specs.slice(0,3) : [];
+    const specTags = specs.map(s=>`<span class="spec-tag">${s.clave}: ${s.valor}</span>`).join('');
+    const foto = p.foto_url
+      ? `<div class="cat-card-img"><img src="${p.foto_url}" alt="${p.nombre}" loading="lazy"/></div>`
+      : `<div class="cat-card-img-placeholder"><i class="fas ${p.tipo==='software'?'fa-laptop-code':'fa-desktop'}"></i></div>`;
+    return `
+    <div class="cat-card">
+      ${foto}
+      <div class="cat-card-body">
+        <div class="cat-card-type ${p.tipo==='software'?'type-software':'type-hardware'}">${p.tipo==='software'?'💻 Software':'🖥️ Hardware'}</div>
+        <div class="cat-card-name">${p.nombre}</div>
+        <div class="cat-card-desc">${p.descripcion||''}</div>
+        ${p.precio ? `<div class="cat-card-price">${p.precio}</div>` : ''}
+        ${specTags ? `<div class="cat-card-specs">${specTags}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+cargarCatalogo();
 </script>
 </body>
 </html>
