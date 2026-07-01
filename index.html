@@ -238,6 +238,33 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:3rem
 .cat-empty{text-align:center;padding:3rem;color:var(--muted);grid-column:1/-1}
 .cat-empty i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:.75rem}
 
+/* MODAL PRODUCTO PÚBLICO */
+.prod-modal-overlay{position:fixed;inset:0;background:rgba(15,27,45,.5);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem}
+.prod-modal-overlay.open{display:flex}
+.prod-modal{background:#fff;border-radius:20px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2);display:grid;grid-template-columns:1fr 1fr}
+.prod-modal-img{background:#f5f7fa;border-radius:20px 0 0 20px;display:flex;align-items:center;justify-content:center;padding:2rem;min-height:320px}
+.prod-modal-img img{width:100%;height:auto;max-height:380px;object-fit:contain}
+.prod-modal-img-placeholder{font-size:4rem;color:#d0d7e3}
+.prod-modal-info{padding:2rem;display:flex;flex-direction:column;gap:.75rem}
+.prod-modal-close{align-self:flex-end;background:none;border:1px solid #d0d7e3;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1rem;color:#5a6a82;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.prod-modal-close:hover{background:#f5f7fa;color:#0f1b2d}
+.prod-modal-type{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.prod-modal-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:#0f1b2d;line-height:1.2}
+.prod-modal-price{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#0e7fd4}
+.prod-modal-desc{font-size:.9rem;color:#5a6a82;line-height:1.7}
+.prod-modal-specs{margin-top:.5rem}
+.prod-modal-specs h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#5a6a82;font-weight:600;margin-bottom:.6rem}
+.prod-modal-spec-row{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #eef1f6;font-size:.85rem}
+.prod-modal-spec-row:last-child{border:none}
+.prod-modal-spec-key{color:#5a6a82}
+.prod-modal-spec-val{font-weight:500;color:#0f1b2d;text-align:right}
+.prod-modal-cta{margin-top:.5rem;background:#0e7fd4;color:#fff;border:none;padding:.85rem;border-radius:10px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:block}
+.prod-modal-cta:hover{opacity:.85}
+@media(max-width:640px){
+  .prod-modal{grid-template-columns:1fr}
+  .prod-modal-img{border-radius:20px 20px 0 0;min-height:220px}
+}
+
 /* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .6s ease both}
@@ -687,6 +714,40 @@ const sbPublic = createClient(SB_URL, SB_KEY);
 
 let todosProductos = [];
 
+
+function openProdModal(id){
+  const p = todosProductos.find(x=>x.id===id);
+  if(!p) return;
+  const specs = Array.isArray(p.specs) ? p.specs : [];
+  // Imagen
+  document.getElementById('pm-img').innerHTML = p.foto_url
+    ? `<img src="${p.foto_url}" alt="${p.nombre}"/>`
+    : `<div class="prod-modal-img-placeholder"><i class="fas ${p.tipo==='software'?'fa-laptop-code':'fa-desktop'}"></i></div>`;
+  // Tipo
+  const typeEl = document.getElementById('pm-type');
+  typeEl.textContent = p.tipo==='software' ? '💻 Software' : '🖥️ Hardware';
+  typeEl.style.color = p.tipo==='software' ? '#0e7fd4' : '#00a8c4';
+  // Info
+  document.getElementById('pm-name').textContent = p.nombre || '';
+  document.getElementById('pm-price').textContent = p.precio ? formatPrecio(p.precio) : '';
+  document.getElementById('pm-desc').textContent = p.descripcion || '';
+  // Specs
+  const specsEl = document.getElementById('pm-specs');
+  if(specs.length > 0){
+    specsEl.innerHTML = '<h4>Especificaciones técnicas</h4>' +
+      specs.map(s=>`<div class="prod-modal-spec-row"><span class="prod-modal-spec-key">${s.clave}</span><span class="prod-modal-spec-val">${s.valor}</span></div>`).join('');
+  } else {
+    specsEl.innerHTML = '';
+  }
+  document.getElementById('prod-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProdModal(){
+  document.getElementById('prod-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function formatPrecio(val){
   if(!val) return '';
   // Si ya tiene letras (ej: "desde $500/mes") lo devuelve tal cual
@@ -724,7 +785,7 @@ function renderCatalogo(lista){
       ? `<div class="cat-card-img"><img src="${p.foto_url}" alt="${p.nombre}" loading="lazy"/></div>`
       : `<div class="cat-card-img-placeholder"><i class="fas ${p.tipo==='software'?'fa-laptop-code':'fa-desktop'}"></i></div>`;
     return `
-    <div class="cat-card">
+    <div class="cat-card" onclick="openProdModal('${p.id}')" style="cursor:pointer">
       ${foto}
       <div class="cat-card-body">
         <div class="cat-card-type ${p.tipo==='software'?'type-software':'type-hardware'}">${p.tipo==='software'?'💻 Software':'🖥️ Hardware'}</div>
@@ -739,5 +800,23 @@ function renderCatalogo(lista){
 
 cargarCatalogo();
 </script>
+
+<!-- MODAL PRODUCTO PÚBLICO -->
+<div class="prod-modal-overlay" id="prod-modal-overlay" onclick="if(event.target===this)closeProdModal()">
+  <div class="prod-modal">
+    <div class="prod-modal-img" id="pm-img"></div>
+    <div class="prod-modal-info">
+      <button class="prod-modal-close" onclick="closeProdModal()"><i class="fas fa-times"></i></button>
+      <div class="prod-modal-type" id="pm-type"></div>
+      <div class="prod-modal-name" id="pm-name"></div>
+      <div class="prod-modal-price" id="pm-price"></div>
+      <div class="prod-modal-desc" id="pm-desc"></div>
+      <div class="prod-modal-specs" id="pm-specs"></div>
+      <a href="#contacto" class="prod-modal-cta" onclick="closeProdModal()">
+        <i class="fas fa-envelope"></i> Solicitar información
+      </a>
+    </div>
+  </div>
+</div>
 </body>
 </html>
