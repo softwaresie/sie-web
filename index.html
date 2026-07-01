@@ -687,6 +687,16 @@ const sbPublic = createClient(SB_URL, SB_KEY);
 
 let todosProductos = [];
 
+function formatPrecio(val){
+  if(!val) return '';
+  // Si ya tiene letras (ej: "desde $500/mes") lo devuelve tal cual
+  if(/[a-zA-Z]/.test(val)) return val;
+  // Quita símbolos y espacios, intenta parsear número
+  const num = parseFloat(String(val).replace(/[^0-9.]/g,''));
+  if(isNaN(num)) return val;
+  return '$' + num.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
 async function cargarCatalogo(){
   const {data, error} = await sbPublic.from('productos').select('*').eq('activo', true).order('tipo').order('created_at', {ascending:false});
   if(error){ console.error(error); return; }
@@ -720,7 +730,7 @@ function renderCatalogo(lista){
         <div class="cat-card-type ${p.tipo==='software'?'type-software':'type-hardware'}">${p.tipo==='software'?'💻 Software':'🖥️ Hardware'}</div>
         <div class="cat-card-name">${p.nombre}</div>
         <div class="cat-card-desc">${p.descripcion||''}</div>
-        ${p.precio ? `<div class="cat-card-price">${p.precio}</div>` : ''}
+        ${p.precio ? `<div class="cat-card-price">${formatPrecio(p.precio)}</div>` : ''}
         ${specTags ? `<div class="cat-card-specs">${specTags}</div>` : ''}
       </div>
     </div>`;
